@@ -217,9 +217,11 @@ from dotenv import load_dotenv
 # Load from your .env file
 load_dotenv(".env")
 
-# ---------------- CONFIG ----------------
-DEFAULT_RETRIEVAL_SCRIPT = "Retrival/retrieval_combined_v2.py"
-TABLES_ONLY_SCRIPT = "Retrival/retrival_tables.py"
+# # ---------------- CONFIG ----------------
+# DEFAULT_RETRIEVAL_SCRIPT = "Retrival/retrieval_combined_v2.py"
+# TABLES_ONLY_SCRIPT = "Retrival/retrival_tables.py"
+RETRIEVAL_COMBINED = BASE_DIR / "Retrival" / "retrieval_combined_v2.py"
+RETRIEVAL_TABLES = BASE_DIR / "Retrival" / "retrival_tables.py"
 OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY", os.getenv("OPENAI_API_KEY"))
 MODEL = "gpt-4o-mini"
 SEMANTIC_TOP = 12
