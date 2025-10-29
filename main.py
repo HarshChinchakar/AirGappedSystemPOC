@@ -669,32 +669,32 @@ with tabs[2]:
     elif run_button:
         st.warning("Please enter a query before running.")
 
-# --- Tab 4: Processed Files (Original) ---
-with tabs[3]:
-    st.header("📂 Processed Files (Available for Querying)")
-    st.markdown("""
-    These are the **processed files** currently available for querying through the RAG system.
-    > ⚙️ *Due to hardware constraints, only these datasets are currently pre-embedded.*
-    """)
-    st.subheader("📘 Text Content Files")
-    st.markdown("""
-    - APR & MAY  
-    - APR TO AUG  
-    - APR TO JAN__dup1  
-    - April 2020 To March 2021  
-    - POSHS METAL INDUSTRIES PVT LTD April To Feb 2021  
-    - BD 26 POSHS METAL INDUSTRIES PVT LTD April To Feb 2021  
-    """)
-    st.subheader("📊 Table Summary Files")
-    st.markdown("""
-    - Axis Bank Statement (Apr–Oct 2020)  
-    - CHEMBUR FY 20-21  
-    - CIBIL Score_PMIPL_As on Nov 2020  
-    - Final rejection Summary sheet SPC VSM  
-    - MIS-Poshs Metal-Mar-21  
-    """)
-    st.markdown("---")
-    st.markdown("👨‍💻 **Creator — Harsh Chinchakar**")
+# # --- Tab 4: Processed Files (Original) ---
+# with tabs[3]:
+#     st.header("📂 Processed Files (Available for Querying)")
+#     st.markdown("""
+#     These are the **processed files** currently available for querying through the RAG system.
+#     > ⚙️ *Due to hardware constraints, only these datasets are currently pre-embedded.*
+#     """)
+#     st.subheader("📘 Text Content Files")
+#     st.markdown("""
+#     - APR & MAY  
+#     - APR TO AUG  
+#     - APR TO JAN__dup1  
+#     - April 2020 To March 2021  
+#     - POSHS METAL INDUSTRIES PVT LTD April To Feb 2021  
+#     - BD 26 POSHS METAL INDUSTRIES PVT LTD April To Feb 2021  
+#     """)
+#     st.subheader("📊 Table Summary Files")
+#     st.markdown("""
+#     - Axis Bank Statement (Apr–Oct 2020)  
+#     - CHEMBUR FY 20-21  
+#     - CIBIL Score_PMIPL_As on Nov 2020  
+#     - Final rejection Summary sheet SPC VSM  
+#     - MIS-Poshs Metal-Mar-21  
+#     """)
+#     st.markdown("---")
+#     st.markdown("👨‍💻 **Creator — Harsh Chinchakar**")
 
 #     elif run_button:
 #         st.warning("Please enter a query before running.")
