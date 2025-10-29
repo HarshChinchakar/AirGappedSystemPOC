@@ -4,12 +4,12 @@ pandas==2.3.1
 scikit-learn==1.5.2
 
 # Sentence Embedding and NLP
-sentence-transformers==2.2.2
+sentence-transformers==3.0.1      # ✅ modern HF API, fixes cached_download issue
 transformers==4.44.2
+huggingface_hub==0.23.2
 torch==2.3.0
 faiss-cpu==1.8.0
-huggingface_hub==0.14.1       # ✅ Compatible with sentence-transformers 2.2.2
-rank_bm25==0.2.2              # ✅ Required by retrieval scripts
+rank_bm25==0.2.2
 
 # OCR and PDF Processing
 pytesseract==0.3.10
@@ -27,7 +27,7 @@ rapidfuzz==3.9.3
 # Data Handling and Utilities
 tqdm==4.66.5
 requests==2.32.3
-python-dotenv==1.0.1          # ✅ replace plain 'dotenv' with correct package name
+python-dotenv==1.0.1
 
 # Web Interface (for Streamlit-based POC)
 streamlit==1.48.0
