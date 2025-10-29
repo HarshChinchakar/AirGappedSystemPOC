@@ -580,7 +580,7 @@ with tabs[0]:
         
         ### **CORE ARCHITECTURE VALIDATION: BUILT FOR AIR-GAPPED PRECISION**
         
-        This Proof of Concept (POC) is the **architectural blueprint** of your final system. It is not a superficial demonstration; it is a **production-grade micro-architecture** designed to validate the most critical constraint: **complete operational isolation**. We have successfully ingested, processed, and created persistent indices for a substantial document subset, proving that **high-level retrieval accuracy** is achievable entirely **offline**, without any external LLM or cloud dependencies. This is a **10% scope implementation** built with **100% architectural fidelity** to ensure zero performance surprises and a validated, seamless path to enterprise deployment.
+        This Proof of Concept (POC) is the **architectural blueprint** of your final system. It is not a superficial demonstration; it is a **production-grade micro-architecture** designed to validate the most critical constraint: **complete operational isolation**. We have successfully ingested, processed, and created persistent indices for a substantial document subset, proving that **high-level retrieval accuracy** is achievable entirely **offline**, without any external LLM or cloud dependencies. This is a **10% scope implementation** built with **Relative architectural fidelity** to ensure performance are validated and real bounds are set for seamless path to enterprise deployment.
         
         ---
 
@@ -590,7 +590,7 @@ with tabs[0]:
         
         * **Offline Ingestion Pipeline**: Handles diverse media and employs an integrated **OCR Normalization Layer** to guarantee data fidelity at the source.
         * **Citation-Enriched Indexing**: Every knowledge vector is permanently mapped to its **source file and page number**, establishing full **traceability** for every retrieved fact.
-        * **Proprietary Hybrid Retrieval Engine**: This core component combines high-recall **Vector Search** with precision-focused **Keyword Re-ranking**, using a weighted score to maximize factual accuracy.
+        * **Hybrid Retrieval Engine**: This core component combines high-recall **Vector Search** with precision-focused **Keyword Re-ranking**, using a weighted score to maximize factual accuracy.
         * **Scalability Foundation**: The system features **Dynamic Index Management** and is optimized for low-latency retrieval on massive datasets, confirming its readiness for your full data volume.
 
         </div>
@@ -604,7 +604,7 @@ with tabs[1]:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("🧠 Expected / Recommended Questions")
+        st.subheader("Expected / Recommended Questions")
         st.markdown("""
         - What are the total outstanding liabilities as of Q3 FY20-21?  
         - Provide a summarized financial overview from April to October 2020.  
@@ -616,7 +616,7 @@ with tabs[1]:
         """)
 
     with col2:
-        st.subheader("📊 Files Processed (with Limitations)")
+        st.subheader("📊 Files Processed (Limitated due hardware constraints)")
         st.markdown("""
         Due to **air-gapped simulation constraints**, only a **limited corpus** is embedded and searchable.
         This ensures **faster, localized retrieval** without external API dependency.
@@ -660,7 +660,7 @@ with tabs[2]:
                 scope = "tables" if scope_option == "Tables Only" else "all"
                 answer = run_rag_pipeline(query.strip(), scope=scope)
                 st.success("✅ Query processed successfully.")
-                st.markdown("### 🧠 Response")
+                st.markdown("### [] Response")
                 st.write(answer)
             except Exception as e:
                 st.error(f"❌ Error: {e}")
