@@ -568,7 +568,7 @@ def run_rag_pipeline(query, scope="tables"):
 # ---------------- Streamlit UI ----------------
 st.set_page_config(page_title="RAG Assistant", page_icon="🤖", layout="wide")
 
-tabs = st.tabs(["📘 Documentation", "🧩 Expected Questions & Files", "💬 Query Interface", "📂 Processed Files"])
+tabs = st.tabs(["📘 Documentation", "🧩 Expected Questions & Files", "💬 Query Interface"])
 
 # --- Tab 1: Documentation ---
 with tabs[0]:
