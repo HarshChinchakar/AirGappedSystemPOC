@@ -572,28 +572,27 @@ tabs = st.tabs(["📘 Documentation", "🧩 Expected Questions & Files", "💬 Q
 
 # --- Tab 1: Documentation ---
 with tabs[0]:
+    # Using a dark background color with white text for maximum contrast and professional focus.
     st.header("📘 Air-Gapped RAG System — Proof of Concept")
     st.markdown(
         """
-        <div style="border: 2px solid #555555; padding: 20px; border-radius: 8px; background-color: #f7f7f7;">
+        <div style="border: 1px solid #2C3E50; padding: 25px; border-radius: 8px; background-color: #34495E; color: white;">
         
         ### **CORE ARCHITECTURE VALIDATION: BUILT FOR AIR-GAPPED PRECISION**
         
-        [cite_start]This Proof of Concept (POC) is a **fully functional, production-grade micro-architecture** designed to mirror the technical constraints and performance requirements of your final **Air-Gapped RAG System**. Unlike surface-level demonstrations, this pipeline validates the core engine *without* external service dependencies, proving that high-accuracy retrieval is achievable in isolated environments[cite: 8, 9, 10, 11]. [cite_start]It's a **10% scope implementation** built with **100% architectural fidelity**[cite: 8, 9]. [cite_start]We ingested, processed, and created persistent, traceable indices for a real-world document set, confirming the robustness required for enterprise-scale AI[cite: 9, 11, 12].
+        This Proof of Concept (POC) is the **architectural blueprint** of your final system. It is not a superficial demonstration; it is a **production-grade micro-architecture** designed to validate the most critical constraint: **complete operational isolation**. We have successfully ingested, processed, and created persistent indices for a substantial document subset, proving that **high-level retrieval accuracy** is achievable entirely **offline**, without any external LLM or cloud dependencies. This is a **10% scope implementation** built with **100% architectural fidelity** to ensure zero performance surprises and a validated, seamless path to enterprise deployment.
         
         ---
 
-        #### **TECHNICAL LIFECYCLE: THE OFFLINE PIPELINE**
-
-        The system achieves high-level retrieval accuracy through a meticulously structured, independent pipeline:
-
-        * [cite_start]**Ingestion & Media Awareness**: Handles and routes multiple document types (PDF, TXT, DOCX)[cite: 12, 65]. [cite_start]A dedicated **OCR Normalization Layer** corrects misreads, preserving data integrity from scanned or noisy sources[cite: 23, 24].
-        * [cite_start]**Citation-Enriched Indexing**: Content is split into context-aware chunks, then tagged with **persistent metadata** (file name, page, source reference) to ensure auditable, traceable outputs[cite: 13, 17, 18, 235, 236].
-        * **Hybrid Retrieval Engine**: This is the core differentiator. [cite_start]It bypasses the limitations of pure semantic search by combining **FAISS Vector Similarity** with **Keyword Re-ranking** and **Adaptive Header Boosting**[cite: 14, 21, 22, 283, 284, 285]. [cite_start]The weighted hybrid score ($score = 0.55\times\text{semantic} + 0.35\times\text{keyword} + 0.10\times\text{header}$) guarantees maximum factual precision[cite: 288, 289].
-        * [cite_start]**Dynamic Maintenance**: The system features **Dynamic FAISS Rebuilds** for automatic index regeneration upon data changes, maintaining peak search performance at scale[cite: 27, 28, 344].
-
-        ---
+        #### **TECHNICAL FLOW: TRACEABILITY AND ACCURACY**
         
+        The design centers on a robust, auditable, and precise information flow:
+        
+        * **Offline Ingestion Pipeline**: Handles diverse media and employs an integrated **OCR Normalization Layer** to guarantee data fidelity at the source.
+        * **Citation-Enriched Indexing**: Every knowledge vector is permanently mapped to its **source file and page number**, establishing full **traceability** for every retrieved fact.
+        * **Proprietary Hybrid Retrieval Engine**: This core component combines high-recall **Vector Search** with precision-focused **Keyword Re-ranking**, using a weighted score to maximize factual accuracy.
+        * **Scalability Foundation**: The system features **Dynamic Index Management** and is optimized for low-latency retrieval on massive datasets, confirming its readiness for your full data volume.
+
         </div>
         """,
         unsafe_allow_html=True
