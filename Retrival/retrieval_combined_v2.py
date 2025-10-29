@@ -47,10 +47,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 log = logging.getLogger("retrieval")
 
 
-BASE_DIR = Path(__file__).resolve().parent
 # ---------------- Config & helpers ----------------
-# DEFAULT_INDEX_DIR = Path("Embedding/Data_Base")
-DEFAULT_INDEX_DIR = BASE_DIR / "Embedding" / "Data_Base"
+DEFAULT_INDEX_DIR = Path("Embedding/Data_Base")
+# DEFAULT_INDEX_DIR = BASE_DIR / "Embedding" / "Data_Base"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"  # optional reranker
 SNIPPET_LEN = 350
