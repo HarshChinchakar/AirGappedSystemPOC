@@ -1,0 +1,12 @@
+{
+  "embedding_model": "all-MiniLM-L6-v2",
+  "dim": 384,
+  "num_vectors": 9678,
+  "index_type": "IndexHNSWFlat",
+  "hnsw": {
+    "M": 32,
+    "efConstruction": 200,
+    "efSearch": 50
+  },
+  "created_at": "2025-10-27T11:03:52.458768Z"
+}

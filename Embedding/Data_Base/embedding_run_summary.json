@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-10-26T13:27:19.104499Z",
+  "input_text_chunks": "/home/harshchinchakar/Undirected/POC/Data Ingestion/Extracted Data/backups/text_chunks.json",
+  "input_tables_or_summaries": "/home/harshchinchakar/Undirected/POC/Data Ingestion/Extracted Data/backups/tables_summaries.jsonl",
+  "num_chunks": 6591,
+  "artifacts": {
+    "embeddings": "/home/harshchinchakar/Undirected/POC/Embedding/Data_Base/embeddings.npy",
+    "faiss_index": "/home/harshchinchakar/Undirected/POC/Embedding/Data_Base/faiss.index",
+    "id_map": "/home/harshchinchakar/Undirected/POC/Embedding/Data_Base/id_map.jsonl",
+    "meta": "/home/harshchinchakar/Undirected/POC/Embedding/Data_Base/meta.jsonl",
+    "chunks_full": "/home/harshchinchakar/Undirected/POC/Embedding/Data_Base/chunks_full.jsonl",
+    "index_meta": "/home/harshchinchakar/Undirected/POC/Embedding/Data_Base/index.meta.json",
+    "num_vectors": 6591
+  },
+  "time_taken_s": 258.05
+}
