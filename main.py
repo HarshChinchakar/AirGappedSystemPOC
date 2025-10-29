@@ -169,7 +169,7 @@ def dedupe_and_merge(semantic, keyword):
 
 # ---------------- Core RAG Logic ----------------
 def run_rag_pipeline(query, scope="tables"):
-    """Main RAG logic — unchanged from the CLI pipeline (only OpenAI call + structured context changed)."""
+    """Main RAG logic — unchanged except for robust OpenAI usage + structured chunk context."""
     if scope == "tables":
         retrieval_script = TABLES_ONLY_SCRIPT
         apply_filter = False
@@ -196,15 +196,7 @@ def run_rag_pipeline(query, scope="tables"):
     if not merged_chunks:
         return {"answer": "No relevant chunks found for this query."}
 
-    # ---------------- OpenAI call (stable usage + structured chunk context) ----------------
-    import openai
-
-    if not OPENAI_API_KEY:
-        raise RuntimeError("OpenAI API key not found. Set OPENAI_API_KEY in st.secrets or your environment.")
-
-    # Use module-level API (compatible across versions and respects HTTP(S)_PROXY env vars)
-    openai.api_key = OPENAI_API_KEY
-
+    # ---------------- Prepare structured context and system prompt ----------------
     system_prompt = (
         "Rules (obey strictly):\n"
         "1) Use ONLY the information present in the provided retrieved chunks to answer. Prefer direct evidence but if indirect evidence is present use to or process it towards maximum bound and infer required facts without Generating facts\n"
@@ -218,8 +210,7 @@ def run_rag_pipeline(query, scope="tables"):
         "(7) When numbers are not present in the chunks -DO NOT ANSWER WITH NUMERIC ANSWERS - State that information is not present but this is what we found"
     )
 
-    # Send the chunks as a structured JSON array (list of dicts) so the model receives structured context
-    # Each chunk already has: chunk_id, pdf_name, page, section_type, score, content (truncated)
+    # Send the chunks as structured JSON array
     chunk_context = json.dumps(merged_chunks, ensure_ascii=False)
 
     messages = [
@@ -235,23 +226,85 @@ def run_rag_pipeline(query, scope="tables"):
         },
     ]
 
-    # Classic ChatCompletion call — widely compatible
-    resp = openai.ChatCompletion.create(
-        model=MODEL,
-        messages=messages,
-        temperature=0.1,
-        max_tokens=700
-    )
-
-    # Extract content robustly
+    # ---------------- Robust OpenAI invocation ----------------
+    resp = None
+    answer = None
     try:
-        answer = resp["choices"][0]["message"]["content"]
-    except Exception:
-        answer = getattr(resp.choices[0].message, "content", None)
-        if answer is None:
-            raise RuntimeError(f"Unexpected OpenAI response shape: {resp}")
+        # Try to use modern OpenAI client if present
+        try:
+            from openai import OpenAI  # modern 1.x client
+            client = OpenAI(api_key=OPENAI_API_KEY)
+            resp = client.chat.completions.create(
+                model=MODEL,
+                messages=messages,
+                temperature=0.1,
+                max_tokens=700
+            )
+            # Try extraction in several possible shapes
+            try:
+                answer = resp["choices"][0]["message"]["content"]
+            except Exception:
+                try:
+                    answer = resp.choices[0].message.content
+                except Exception:
+                    answer = None
 
-    # 🔹 Add source citation (file names without extensions)
+        except Exception as client_exc:
+            # If the modern client failed (e.g. proxies/unexpected arg), fall back to direct HTTP call
+            # or the legacy openai API depending on what's available.
+            # Try legacy openai module if present and supports ChatCompletion
+            try:
+                import openai as openai_legacy
+                ver = getattr(openai_legacy, "__version__", "")
+                # If legacy (version < 1.0) and exposes ChatCompletion, use it
+                if ver and int(ver.split(".")[0]) < 1 and hasattr(openai_legacy, "ChatCompletion"):
+                    openai_legacy.api_key = OPENAI_API_KEY
+                    resp = openai_legacy.ChatCompletion.create(
+                        model=MODEL, messages=messages, temperature=0.1, max_tokens=700
+                    )
+                    try:
+                        answer = resp["choices"][0]["message"]["content"]
+                    except Exception:
+                        answer = getattr(resp.choices[0].message, "content", None)
+                else:
+                    # Final fallback: call the REST API directly using requests (no openai client)
+                    import requests
+                    url = "https://api.openai.com/v1/chat/completions"
+                    headers = {
+                        "Authorization": f"Bearer {OPENAI_API_KEY}",
+                        "Content-Type": "application/json",
+                    }
+                    payload = {
+                        "model": MODEL,
+                        "messages": messages,
+                        "temperature": 0.1,
+                        "max_tokens": 700,
+                    }
+                    r = requests.post(url, headers=headers, json=payload, timeout=120)
+                    try:
+                        rj = r.json()
+                    except Exception as rexc:
+                        raise RuntimeError(f"OpenAI HTTP call failed to return JSON: {rexc}\nStatus:{r.status_code}\nText:{r.text}")
+                    # store resp-like object for debugging later
+                    resp = rj
+                    # extract
+                    try:
+                        answer = rj["choices"][0]["message"]["content"]
+                    except Exception:
+                        answer = None
+            except Exception as fallback_exc:
+                # bubble up an informative error containing both attempts
+                raise RuntimeError(f"OpenAI client failure: {client_exc}\nFallback attempt failed: {fallback_exc}")
+
+    except Exception as e:
+        # surface as runtime error with details so UI shows it
+        raise RuntimeError(f"OpenAI invocation failed: {e}")
+
+    # Validate we have an answer
+    if not answer:
+        raise RuntimeError(f"OpenAI returned unexpected response shape or empty answer. Raw response: {resp}")
+
+    # ---------------- Add source citation (file names without extensions) ----------------
     pdf_names = sorted(set([
         Path(c["pdf_name"]).stem for c in merged_chunks if c.get("pdf_name")
     ]))
