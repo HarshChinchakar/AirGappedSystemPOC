@@ -47,27 +47,28 @@ def now_iso():
 import shutil
 
 def run_retrieval(query: str, retrieval_script: str):
-    """Run retrieval script via subprocess but using the same Python interpreter / venv
-    as the running Streamlit process. Returns parsed dict or raises RuntimeError with
-    helpful stdout/stderr on failure.
+    """
+    Run retrieval script via subprocess using the same Python interpreter / venv.
+    Returns parsed dict if successful or if the subprocess printed valid retrieval JSON
+    (even when the process exit code != 0). Raises RuntimeError only when no usable
+    JSON/chunks are found.
+
+    This is defensive to handle cases where the retrieval subprocess prints dependency
+    warnings/errors AFTER producing usable chunk JSON (or prints an 'error' JSON).
     """
     retrieval_script = str(retrieval_script)
     if not os.path.isfile(retrieval_script):
         raise RuntimeError(f"Retrieval script not found: {retrieval_script!r}")
 
-    # Use the exact Python interpreter that's running this process (ensures same venv/deps)
     python_exec = sys.executable or shutil.which("python3") or "python3"
-
-    # Build argument list (avoid shell quoting issues)
     top_k = max(SEMANTIC_TOP, KEYWORD_TOP)
     cmd_list = [python_exec, retrieval_script, "--query", query, "--top_k", str(top_k)]
 
-    # Ensure the subprocess inherits current env and has BASE_DIR in PYTHONPATH (for local imports)
+    # Ensure subprocess uses same env and can import local modules
     env = os.environ.copy()
     existing_pp = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = str(BASE_DIR) + (":" + existing_pp if existing_pp else "")
 
-    # Run subprocess in project base dir so relative imports/files work
     proc = subprocess.run(
         cmd_list,
         capture_output=True,
@@ -78,24 +79,60 @@ def run_retrieval(query: str, retrieval_script: str):
         shell=False,
     )
 
-    # Helpful debug on failure
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"Retrieval script failed (rc={proc.returncode}).\n\nCMD: {' '.join(cmd_list)}\n\nSTDOUT:\n{proc.stdout}\n\nSTDERR:\n{proc.stderr}"
-        )
-
     stdout = proc.stdout or ""
-    # Parse JSON marker first, then fallback to first JSON object
-    m = re.search(r"RETRIEVAL_JSON_OUTPUT:\s*(\{[\s\S]+\})", stdout)
-    if not m:
-        m2 = re.search(r"(\{[\s\S]+\})", stdout)
-        m = m2
+    stderr = proc.stderr or ""
 
-    if not m:
-        raise RuntimeError(f"No JSON found in retrieval stdout. Full stdout:\n{stdout}\n\nStderr:\n{proc.stderr}")
+    # Try to extract JSON (primary marker then fallback)
+    parsed = None
+    try:
+        m = re.search(r"RETRIEVAL_JSON_OUTPUT:\s*(\{[\s\S]+\})", stdout)
+        if not m:
+            m = re.search(r"(\{[\s\S]+\})", stdout)
+        if m:
+            parsed = json.loads(m.group(1))
+    except Exception as e:
+        # JSON exists but parse failed — treat as fatal, include stdout for debug
+        raise RuntimeError(f"Failed to parse JSON from retrieval stdout: {e}\n\nSTDOUT:\n{stdout}\n\nSTDERR:\n{stderr}")
 
-    parsed = json.loads(m.group(1))
-    return parsed
+    # If we got parsed JSON, check if it contains usable retrieval chunks
+    if isinstance(parsed, dict):
+        # If parsed has semantic/keyword results, return it even if rc != 0
+        has_semantic = bool(parsed.get("semantic", {}).get("results"))
+        has_keyword = bool(parsed.get("keyword", {}).get("results"))
+        if has_semantic or has_keyword:
+            return parsed
+
+        # If parsed contains an 'error' payload only, surface it as an error
+        if parsed.get("error") and not (has_semantic or has_keyword):
+            hint = ""
+            err_text = str(parsed.get("error") or "")
+            if "huggingface_hub" in err_text or "cached_download" in err_text:
+                hint = "\nHint: the retrieval script reports a huggingface_hub version mismatch. Try upgrading: `pip install --upgrade huggingface_hub sentence-transformers numpy` in the venv used by Streamlit."
+            raise RuntimeError(f"Retrieval script returned an error payload: {err_text}{hint}\n\nSTDOUT:\n{stdout}\n\nSTDERR:\n{stderr}")
+
+        # parsed JSON present but no semantic/keyword -> return parsed (caller can decide)
+        return parsed
+
+    # No JSON parsed
+    # If subprocess exited cleanly but printed no JSON -> fatal
+    if proc.returncode == 0:
+        raise RuntimeError(f"Retrieval subprocess completed (rc=0) but produced no JSON.\n\nSTDOUT:\n{stdout}\n\nSTDERR:\n{stderr}")
+
+    # proc.returncode != 0 and no JSON -> include hints for common dependency issues
+    # inspect stdout/stderr for known dependency messages
+    combined = stdout + "\n\n" + stderr
+    if "No module named" in combined or "cannot import name" in combined or "Missing dependencies" in combined:
+        suggestion = (
+            "\nSuggested fix: ensure the retrieval subprocess uses the same Python venv as Streamlit. "
+            "On the host, run `which python3` and `pip install sentence-transformers faiss-cpu rank_bm25 numpy huggingface_hub` "
+            "inside that environment. If you use virtualenv/venv, make sure sys.executable points to it."
+        )
+    else:
+        suggestion = ""
+
+    raise RuntimeError(
+        f"Retrieval script failed (rc={proc.returncode}) and no JSON could be parsed.\n\nCMD: {' '.join(cmd_list)}\n\nSTDOUT:\n{stdout}\n\nSTDERR:\n{stderr}\n{suggestion}"
+    )
 
 
 def is_table_chunk(item: Dict[str, Any]) -> bool:
