@@ -573,31 +573,31 @@ tabs = st.tabs(["📘 Documentation", "🧩 Expected Questions & Files", "💬 Q
 # --- Tab 1: Documentation ---
 with tabs[0]:
     st.header("📘 Air-Gapped RAG System — Proof of Concept")
-    st.markdown("""
-    ### 🚀 **Precision-Engineered Retrieval for Isolated Environments**
+    st.markdown(
+        """
+        <div style="border: 2px solid #555555; padding: 20px; border-radius: 8px; background-color: #f7f7f7;">
+        
+        ### **CORE ARCHITECTURE VALIDATION: BUILT FOR AIR-GAPPED PRECISION**
+        
+        [cite_start]This Proof of Concept (POC) is a **fully functional, production-grade micro-architecture** designed to mirror the technical constraints and performance requirements of your final **Air-Gapped RAG System**. Unlike surface-level demonstrations, this pipeline validates the core engine *without* external service dependencies, proving that high-accuracy retrieval is achievable in isolated environments[cite: 8, 9, 10, 11]. [cite_start]It's a **10% scope implementation** built with **100% architectural fidelity**[cite: 8, 9]. [cite_start]We ingested, processed, and created persistent, traceable indices for a real-world document set, confirming the robustness required for enterprise-scale AI[cite: 9, 11, 12].
+        
+        ---
 
-    This Proof of Concept (POC) is not a quick demonstration; it is a **foundation** built with the same architectural rigor and technical depth required for your **enterprise-grade, air-gapped system**.
+        #### **TECHNICAL LIFECYCLE: THE OFFLINE PIPELINE**
 
-    We have successfully implemented a **complete, end-to-end pipeline** using a substantial subset of your files, showcasing **perfect resonance** in data storage and highly accurate retrieval, all executed entirely **offline**.
+        The system achieves high-level retrieval accuracy through a meticulously structured, independent pipeline:
 
-    This POC represents a **10% implementation** of the final product, built on limited resources to prove the core concept of **data isolation, advanced processing, and highly accurate, auditable retrieval**—without any dependency on external services (like cloud-based LLM processing).
+        * [cite_start]**Ingestion & Media Awareness**: Handles and routes multiple document types (PDF, TXT, DOCX)[cite: 12, 65]. [cite_start]A dedicated **OCR Normalization Layer** corrects misreads, preserving data integrity from scanned or noisy sources[cite: 23, 24].
+        * [cite_start]**Citation-Enriched Indexing**: Content is split into context-aware chunks, then tagged with **persistent metadata** (file name, page, source reference) to ensure auditable, traceable outputs[cite: 13, 17, 18, 235, 236].
+        * **Hybrid Retrieval Engine**: This is the core differentiator. [cite_start]It bypasses the limitations of pure semantic search by combining **FAISS Vector Similarity** with **Keyword Re-ranking** and **Adaptive Header Boosting**[cite: 14, 21, 22, 283, 284, 285]. [cite_start]The weighted hybrid score ($score = 0.55\times\text{semantic} + 0.35\times\text{keyword} + 0.10\times\text{header}$) guarantees maximum factual precision[cite: 288, 289].
+        * [cite_start]**Dynamic Maintenance**: The system features **Dynamic FAISS Rebuilds** for automatic index regeneration upon data changes, maintaining peak search performance at scale[cite: 27, 28, 344].
 
-    ---
-    ### 💡 **Our Core Value Proposition: Quality Over Speed**
-
-    While competitors may deliver a faster, less robust demonstration, our approach prioritizes **production-readiness and verifiable accuracy**:
-
-    * **Air-Gapped Fidelity**: The entire process—from file ingestion and OCR to embedding and retrieval—is designed to be **completely self-contained and offline**. This ensures a seamless transition to your final, secure environment.
-    * **Unrivaled Retrieval Accuracy**: We use a **Hybrid Retrieval Engine** (Semantic + Keyword) with a unique **Citation-Enriched Indexing** to deliver facts with extreme precision and full source traceability, which is essential for auditable results.
-    * **Production-Grade Architecture**: The system is modular, maintainable, and designed for enterprise scale and extensibility, offering **full operational traceability** via comprehensive logging.
-
-    ---
-    ### 🧱 **Abstracted Pipeline: Secured Information Flow**
-
-    **Your Data Ingestion (Offline)** → **Advanced Processing & Citation Indexing** → **Hybrid Retrieval Engine** → **High-Accuracy Retrieved Content**
-
-    This architecture guarantees that when we scale to the full product, you will have a system optimized for **speed, accuracy, and absolute data security** from day one.
-    """)
+        ---
+        
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # --- Tab 2: Expected Questions & Files Processed ---
 with tabs[1]:
