@@ -635,7 +635,7 @@ with tabs[1]:
         - CHEMBUR FY 20-21 and related summaries  
         """)
 
-        st.info("🔗 For detailed chunk-level view, visit: [Chunk Visualizer App](https://air-gapped-system-poc-qdvatkypzyappztfxsaypgq.streamlit.app)")
+        # st.info("🔗 For detailed chunk-level view, visit: [Chunk Visualizer App](https://air-gapped-system-poc-qdvatkypzyappztfxsaypgq.streamlit.app)")
 
 # --- Tab 3: Query Interface ---
 with tabs[2]:
@@ -648,6 +648,8 @@ with tabs[2]:
 
     st.sidebar.subheader("[*] Don’ts")
     st.sidebar.markdown("- Don’t query unprocessed files.\n- Don’t expect live updates.\n- Avoid vague questions.")
+    st.info("🔗 For detailed chunk-level view, visit: [Chunk Visualizer App](https://air-gapped-system-poc-qdvatkypzyappztfxsaypgq.streamlit.app)")
+
 
     col1, col2 = st.columns([4, 2])
     with col1:
