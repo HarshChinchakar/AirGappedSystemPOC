@@ -216,7 +216,7 @@ from dotenv import load_dotenv
 
 # Load from your .env file
 load_dotenv(".env")
-
+BASE_DIR = Path(__file__).resolve().parent
 # # ---------------- CONFIG ----------------
 # DEFAULT_RETRIEVAL_SCRIPT = "Retrival/retrieval_combined_v2.py"
 # TABLES_ONLY_SCRIPT = "Retrival/retrival_tables.py"
