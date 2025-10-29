@@ -233,17 +233,64 @@ TIMEOUT_SECONDS = 120
 def now_iso():
     return datetime.utcnow().isoformat() + "Z"
 
-def run_retrieval(query: str, retrieval_script: str):
-    """Executes the retrieval script via subprocess and returns parsed JSON output."""
-    cmd = f"python3 {shlex.quote(retrieval_script)} --query {shlex.quote(query)} --top_k {max(SEMANTIC_TOP, KEYWORD_TOP)}"
-    proc = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=TIMEOUT_SECONDS)
-    if proc.returncode != 0:
-        raise RuntimeError(f"Retrieval script failed: {proc.stderr}")
+# def run_retrieval(query: str, retrieval_script: str):
+#     """Executes the retrieval script via subprocess and returns parsed JSON output."""
+#     cmd = f"python3 {shlex.quote(retrieval_script)} --query {shlex.quote(query)} --top_k {max(SEMANTIC_TOP, KEYWORD_TOP)}"
+#     proc = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=TIMEOUT_SECONDS)
+#     if proc.returncode != 0:
+#         raise RuntimeError(f"Retrieval script failed: {proc.stderr}")
 
-    match = re.search(r"RETRIEVAL_JSON_OUTPUT:\s*(\{[\s\S]+\})", proc.stdout)
-    if not match:
-        raise RuntimeError("No valid JSON found in retrieval output.")
-    return json.loads(match.group(1))
+#     match = re.search(r"RETRIEVAL_JSON_OUTPUT:\s*(\{[\s\S]+\})", proc.stdout)
+#     if not match:
+#         raise RuntimeError("No valid JSON found in retrieval output.")
+#     return json.loads(match.group(1))
+
+import shutil
+
+def run_retrieval(query: str, retrieval_script: str):
+    """Runs the retrieval script via subprocess and returns parsed JSON output.
+    Returns a dict on success, raises RuntimeError with helpful message on failure.
+    """
+    # Ensure we have a string path
+    retrieval_script = str(retrieval_script)
+
+    # Quick existence check (helps on hosted platforms)
+    if not os.path.isfile(retrieval_script):
+        raise RuntimeError(f"Retrieval script not found: {retrieval_script!r}")
+
+    # Build safe command
+    python_exec = shutil.which("python3") or sys.executable or "python3"
+    cmd = f"{python_exec} {shlex.quote(retrieval_script)} --query {shlex.quote(query)} --top_k {max(SEMANTIC_TOP, KEYWORD_TOP)}"
+
+    # Run subprocess
+    proc = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=TIMEOUT_SECONDS, cwd=str(BASE_DIR))
+
+    # Always include stdout/stderr in the error path for quick debugging
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"Retrieval script failed (rc={proc.returncode}).\nSTDOUT:\n{proc.stdout}\n\nSTDERR:\n{proc.stderr}"
+        )
+
+    stdout = proc.stdout or ""
+    # Safe check before using re on stdout
+    if not isinstance(stdout, (str, bytes)):
+        raise RuntimeError("Retrieval subprocess produced non-text stdout")
+
+    # Try primary marker first
+    m = re.search(r"RETRIEVAL_JSON_OUTPUT:\s*(\{[\s\S]+\})", stdout)
+    if not m:
+        # fallback: first JSON object in output
+        m2 = re.search(r"(\{[\s\S]+\})", stdout)
+        m = m2
+
+    if not m:
+        # include stdout to help debugging
+        raise RuntimeError(f"No JSON found in retrieval stdout. Full stdout:\n{stdout}\n\nStderr:\n{proc.stderr}")
+
+    # parse json (this can raise JSONDecodeError which will bubble up)
+    parsed = json.loads(m.group(1))
+    return parsed
+
 
 def is_table_chunk(item: Dict[str, Any]) -> bool:
     st = (item.get("section_type") or "").lower()
