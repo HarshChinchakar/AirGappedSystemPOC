@@ -8,6 +8,8 @@ sentence-transformers==2.2.2
 transformers==4.44.2
 torch==2.3.0
 faiss-cpu==1.8.0
+huggingface_hub==0.14.1       # ✅ Compatible with sentence-transformers 2.2.2
+rank_bm25==0.2.2              # ✅ Required by retrieval scripts
 
 # OCR and PDF Processing
 pytesseract==0.3.10
@@ -25,16 +27,15 @@ rapidfuzz==3.9.3
 # Data Handling and Utilities
 tqdm==4.66.5
 requests==2.32.3
+python-dotenv==1.0.1          # ✅ replace plain 'dotenv' with correct package name
 
 # Web Interface (for Streamlit-based POC)
 streamlit==1.48.0
 
 # Optional - For safe async process handling
 psutil==6.1.0
-dotenv
 
-openpyxl 
-xlrd==2.0.1 
-tqdm 
-tiktoken 
-pandas
+# Excel & Token Handling
+openpyxl==3.1.5
+xlrd==2.0.1
+tiktoken==0.7.0
