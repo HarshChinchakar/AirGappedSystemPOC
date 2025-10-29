@@ -169,7 +169,7 @@ def dedupe_and_merge(semantic, keyword):
 
 # ---------------- Core RAG Logic ----------------
 def run_rag_pipeline(query, scope="tables"):
-    """Main RAG logic — unchanged from the CLI pipeline."""
+    """Main RAG logic — unchanged from the CLI pipeline (only OpenAI call + structured context changed)."""
     if scope == "tables":
         retrieval_script = TABLES_ONLY_SCRIPT
         apply_filter = False
@@ -196,9 +196,14 @@ def run_rag_pipeline(query, scope="tables"):
     if not merged_chunks:
         return {"answer": "No relevant chunks found for this query."}
 
-    # Prepare OpenAI call
-    from openai import OpenAI
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    # ---------------- OpenAI call (stable usage + structured chunk context) ----------------
+    import openai
+
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OpenAI API key not found. Set OPENAI_API_KEY in st.secrets or your environment.")
+
+    # Use module-level API (compatible across versions and respects HTTP(S)_PROXY env vars)
+    openai.api_key = OPENAI_API_KEY
 
     system_prompt = (
         "Rules (obey strictly):\n"
@@ -212,28 +217,39 @@ def run_rag_pipeline(query, scope="tables"):
         "When the required data isnt completely present then focus on the present data in the retrieved chunks and frame a short answer towards that"
         "(7) When numbers are not present in the chunks -DO NOT ANSWER WITH NUMERIC ANSWERS - State that information is not present but this is what we found"
     )
-    chunk_context = "\n".join([
-        json.dumps({
-            "chunk_id": c["chunk_id"],
-            "pdf_name": c["pdf_name"],
-            "page": c["page"],
-            "content": c["content"]
-        }, ensure_ascii=False)
-        for c in merged_chunks
-    ])
+
+    # Send the chunks as a structured JSON array (list of dicts) so the model receives structured context
+    # Each chunk already has: chunk_id, pdf_name, page, section_type, score, content (truncated)
+    chunk_context = json.dumps(merged_chunks, ensure_ascii=False)
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"User query: {query}\n\nContext:\n{chunk_context}"}
+        {
+            "role": "user",
+            "content": (
+                f"User query: {query}\n\n"
+                "Context: Structured JSON array of retrieved chunks follows. Each chunk is a dict: "
+                " {chunk_id, pdf_name, page, section_type, score, content}.\n\n"
+                f"{chunk_context}"
+            ),
+        },
     ]
 
-    response = client.chat.completions.create(
+    # Classic ChatCompletion call — widely compatible
+    resp = openai.ChatCompletion.create(
         model=MODEL,
         messages=messages,
         temperature=0.1,
         max_tokens=700
     )
-    answer = response.choices[0].message.content
+
+    # Extract content robustly
+    try:
+        answer = resp["choices"][0]["message"]["content"]
+    except Exception:
+        answer = getattr(resp.choices[0].message, "content", None)
+        if answer is None:
+            raise RuntimeError(f"Unexpected OpenAI response shape: {resp}")
 
     # 🔹 Add source citation (file names without extensions)
     pdf_names = sorted(set([
@@ -244,6 +260,7 @@ def run_rag_pipeline(query, scope="tables"):
         answer = answer.strip() + citations
 
     return answer
+
 
 # ---------------- Streamlit UI ----------------
 st.set_page_config(page_title="RAG Assistant", page_icon="🤖", layout="wide")
